@@ -6,9 +6,13 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var mensajeRouter = require('./routes/mensaje');
+//var usersRouter = require('./routes/users');
 
 var app = express();
-
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/mensaje',mensajeRouter);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -20,7 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -37,5 +41,14 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+var chatIoMethods = require('./routes/chat');
 
+io.on('connection',chatIoMethods);
+
+const port = 8000;
+app.listen(port,()=>{
+  console.log("servicio corriendo en " + 8000);
+});
 module.exports = app;
